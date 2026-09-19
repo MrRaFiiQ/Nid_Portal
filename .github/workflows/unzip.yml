@@ -1,0 +1,79 @@
+name: Auto Unzip
+
+on:
+  push:
+    paths:
+      - "*.zip"
+
+permissions:
+  contents: write
+
+jobs:
+  unzip:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Find ZIP file
+        id: zip
+        shell: bash
+        run: |
+          ZIP_FILE=$(find . -maxdepth 1 -type f -name "*.zip" | head -n 1)
+
+          if [ -z "$ZIP_FILE" ]; then
+            echo "No ZIP file found."
+            exit 1
+          fi
+
+          echo "ZIP_FILE=$ZIP_FILE" >> "$GITHUB_ENV"
+          echo "Found: $ZIP_FILE"
+
+      - name: Extract ZIP
+        shell: bash
+        run: |
+          mkdir -p extracted
+
+          unzip -o "$ZIP_FILE" -d extracted
+
+          echo "ZIP extracted successfully."
+
+      - name: Move files to repository root
+        shell: bash
+        run: |
+          shopt -s dotglob nullglob
+
+          for item in extracted/*; do
+            name=$(basename "$item")
+
+            if [ "$name" != ".git" ] && [ "$name" != ".github" ]; then
+              rm -rf -- "$name"
+              mv -- "$item" .
+            fi
+          done
+
+          rm -rf extracted
+
+      - name: Remove ZIP
+        shell: bash
+        run: |
+          rm -f "$ZIP_FILE"
+
+      - name: Commit extracted files
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -A
+
+          if git diff --cached --quiet; then
+            echo "Nothing to commit."
+            exit 0
+          fi
+
+          git commit -m "Auto extract ZIP"
+          git push
