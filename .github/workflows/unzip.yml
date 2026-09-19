@@ -3,7 +3,8 @@ name: Auto Unzip
 on:
   push:
     paths:
-      - "*.zip"
+      - "**.zip"
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -19,40 +20,76 @@ jobs:
           fetch-depth: 0
 
       - name: Find ZIP file
-        id: zip
+        id: find_zip
         shell: bash
         run: |
-          ZIP_FILE=$(find . -maxdepth 1 -type f -name "*.zip" | head -n 1)
+          echo "Searching for ZIP files..."
+
+          ZIP_FILE=$(find . \
+            -type f \
+            \( -iname "*.zip" \) \
+            -not -path "./.git/*" \
+            | head -n 1)
 
           if [ -z "$ZIP_FILE" ]; then
-            echo "No ZIP file found."
+            echo "ERROR: No ZIP file found."
+            echo "Files in repository:"
+            find . -maxdepth 3 -type f | head -100
             exit 1
           fi
 
+          echo "ZIP found:"
+          echo "$ZIP_FILE"
+
           echo "ZIP_FILE=$ZIP_FILE" >> "$GITHUB_ENV"
-          echo "Found: $ZIP_FILE"
+
+      - name: Check ZIP
+        shell: bash
+        run: |
+          echo "Testing ZIP:"
+          unzip -t "$ZIP_FILE"
 
       - name: Extract ZIP
         shell: bash
         run: |
+          rm -rf extracted
           mkdir -p extracted
+
+          echo "Extracting:"
+          echo "$ZIP_FILE"
 
           unzip -o "$ZIP_FILE" -d extracted
 
-          echo "ZIP extracted successfully."
+          echo "Extraction completed."
 
-      - name: Move files to repository root
+      - name: Show extracted files
+        shell: bash
+        run: |
+          echo "Extracted files:"
+          find extracted -maxdepth 4 -type f | head -200
+
+      - name: Move project files
         shell: bash
         run: |
           shopt -s dotglob nullglob
 
-          for item in extracted/*; do
+          items=(extracted/*)
+
+          if [ ${#items[@]} -eq 0 ]; then
+            echo "ERROR: ZIP is empty."
+            exit 1
+          fi
+
+          for item in "${items[@]}"; do
             name=$(basename "$item")
 
-            if [ "$name" != ".git" ] && [ "$name" != ".github" ]; then
-              rm -rf -- "$name"
-              mv -- "$item" .
+            # Don't overwrite GitHub workflow directory
+            if [ "$name" = ".github" ]; then
+              continue
             fi
+
+            rm -rf -- "$name"
+            mv -- "$item" .
           done
 
           rm -rf extracted
@@ -62,7 +99,7 @@ jobs:
         run: |
           rm -f "$ZIP_FILE"
 
-      - name: Commit extracted files
+      - name: Commit changes
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
@@ -71,7 +108,7 @@ jobs:
           git add -A
 
           if git diff --cached --quiet; then
-            echo "Nothing to commit."
+            echo "No changes to commit."
             exit 0
           fi
 
