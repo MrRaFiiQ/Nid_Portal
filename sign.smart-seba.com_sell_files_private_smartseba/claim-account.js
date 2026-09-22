@@ -30,10 +30,6 @@ const IMAP_FROM = process.env.IMAP_FROM || '';
  * Read OTP from a Gmail inbox via IMAP.
  * Polls for a new unread email (optionally to a specific +alias address) within
  * the given window and extracts a 4-8 digit numeric OTP code from its body.
- *
- * Concurrency safety: every claim uses its own plus-alias
- * (smartseba500+<NID>@gmail.com). The `to` filter guarantees the OTP read for
- * one NID never picks up an OTP meant for another NID, even under heavy load.
  */
 async function readOtpFromGmail({ sinceMs, otpSentAt, timeoutMs = 120000, pollIntervalMs = 3000, to = '' } = {}) {
   if (!IMAP_USER || !IMAP_PASS) {
@@ -68,9 +64,6 @@ async function fetchLatestOtpFromGmail(windowMs, to, otpSentAt) {
     await client.connect();
     const lock = await client.getMailboxLock('INBOX');
     try {
-      // Look at emails in a window around the OTP send. NIDW sometimes
-      // rate-limits/delays the actual email, so start a few minutes BEFORE the
-      // send time to catch it, while still excluding old stale OTPs.
       const since = otpSentAt
         ? new Date(otpSentAt - 10 * 60 * 1000)
         : new Date(Date.now() - windowMs);
@@ -79,7 +72,6 @@ async function fetchLatestOtpFromGmail(windowMs, to, otpSentAt) {
       else if (IMAP_FROM) search.from = IMAP_FROM;
       const uids = await client.search(search);
 
-      // Newest first, check a few most recent
       const recent = uids.slice(-5).reverse();
       for (const uid of recent) {
         const msg = await client.fetchOne(uid, { envelope: true, bodyParts: ['text'] });
@@ -90,8 +82,6 @@ async function fetchLatestOtpFromGmail(windowMs, to, otpSentAt) {
         const toAddrs = (msg.envelope && msg.envelope.to || []).map(x => x.address).join(',');
         console.log('  -> Gmail candidate: from=' + fromAddr + ' to=' + toAddrs + ' subject=' + (subject || '').substring(0, 60));
 
-        // Double safety: if a `to` filter was requested, only accept mail whose
-        // To header actually contains that address.
         if (to && toAddrs.toLowerCase().indexOf(to.toLowerCase()) === -1) {
           console.log('  -> Skip (To does not match ' + to + ')');
           continue;
@@ -117,7 +107,6 @@ async function fetchLatestOtpFromGmail(windowMs, to, otpSentAt) {
 function extractOtpFromText(text) {
   text = String(text || '');
   if (!text) return null;
-  // Prefer 6-digit codes (NIDW OTP), then 4-8 digit fallback
   const m6 = text.match(/\b(\d{6})\b/);
   if (m6) return m6[1];
   const m48 = text.match(/\b(\d{4,8})\b/);
@@ -125,8 +114,6 @@ function extractOtpFromText(text) {
 }
 
 const manualOtpSessions = new Map();
-
-// OTP verification queue — serializes verify calls to NIDW to prevent race conditions
 const otpVerifyQueue = [];
 let otpVerifyBusy = false;
 async function processOtpVerifyQueue() {
@@ -231,10 +218,6 @@ async function preprocessCaptcha(buf) {
     const img = await Jimp.read(buf);
     const w = img.bitmap.width;
     const h = img.bitmap.height;
-    // Step 1: threshold (exactly like PHP addWhiteBg)
-    // PHP GD: alpha 0=opaque, 127=transparent; Jimp: alpha 0=transparent, 255=opaque
-    // PHP condition: alpha < 127 (not fully transparent) && R < 120 && G < 120 && B < 120
-    // In Jimp: alpha > 0 (any visible pixel) && R < 120 && G < 120 && B < 120
     const th = new Jimp({ width: w, height: h, color: 0xFFFFFFFF });
     for (let y = 0; y < h; y++) {
       for (let x = 0; x < w; x++) {
@@ -252,7 +235,6 @@ async function preprocessCaptcha(buf) {
         }
       }
     }
-    // Step 2: despeckle (keep black pixels with >= 3 black neighbors including self)
     const result = new Jimp({ width: w, height: h, color: 0xFFFFFFFF });
     for (let y = 0; y < h; y++) {
       for (let x = 0; x < w; x++) {
@@ -293,8 +275,6 @@ async function solveCaptcha(imageBuffer) {
   const processed = await preprocessCaptcha(imageBuffer);
   const b64 = processed.toString('base64');
   let lastOcrErr = '';
-  // Try each OCR.space key (multiple keys via comma-separated OCR_API_KEY)
-  // Retry up to 5 times per key to survive temporary throttle (E571)
   for (let attempt = 0; attempt < 5; attempt++) {
     for (const key of OCR_KEYS) {
       try {
@@ -429,8 +409,6 @@ async function waitFrsStatus(mqtt, topic, timeoutMs, page) {
         done(status);
       }
     });
-    // Any transient MQTT error/close/offline must NOT crash the worker —
-    // just resolve null so the FRS retry loop can re-attempt.
     const onFail = () => { clearTimeout(timeout); safeEnd(); done(null); };
     client.on('error', onFail);
     client.on('close', () => { if (!settled) setTimeout(onFail, 500); });
@@ -438,15 +416,9 @@ async function waitFrsStatus(mqtt, topic, timeoutMs, page) {
   });
 }
 
-/**
- * Verify a NIDW citizen wallet login by actually performing a login with the
- * given credentials. Returns true only when the credentials are confirmed to
- * work — so users are never handed invalid username/password pairs.
- */
 async function verifyLogin(username, password) {
   for (let attempt = 1; attempt <= 4; attempt++) {
     const jar = new CookieJar();
-    // Use the root page (it hosts the login form reliably); /nid-pub/login often 500s
     const pageRes = await request(BASE_URL + '/nid-pub/', jar, {
       headers: { 'Accept': 'text/html', 'User-Agent': UA, 'Accept-Language': 'en-US,en;q=0.9' },
     });
@@ -492,12 +464,6 @@ async function verifyLogin(username, password) {
   return false;
 }
 
-/**
- * Set the wallet password through the real NIDW "সেট পাসওয়ার্ড" page using the
- * browser (works in headless mode too). It clicks the #add-password button to
- * reveal the username/password form, fills it, submits, then verifies the login
- * actually works. Returns verified credentials only.
- */
 async function setWalletPasswordViaBrowser(page, nid) {
   const letters = 'abcdefghijklmnopqrstuvwxyz';
   const randLetters = (n) => Array.from({ length: n }, () => letters[Math.floor(Math.random() * letters.length)]).join('');
@@ -510,7 +476,6 @@ async function setWalletPasswordViaBrowser(page, nid) {
     await page.goto(BASE_URL + '/nid-pub/citizen-home/secure-account', { waitUntil: 'networkidle0', timeout: 30000 }).catch(() => {});
     await new Promise(r => setTimeout(r, 1500));
 
-    // Click "সেট পাসওয়ার্ড" (#add-password) to reveal the form
     await page.waitForSelector('#add-password', { timeout: 15000 }).catch(() => {});
     const addBtn = await page.$('#add-password');
     if (addBtn) {
@@ -519,7 +484,6 @@ async function setWalletPasswordViaBrowser(page, nid) {
       await new Promise(r => setTimeout(r, 2000));
     }
 
-    // Wait for the username/password form
     await page.waitForSelector('input[name="username"]', { timeout: 15000 }).catch(() => {});
     await page.waitForSelector('input[name="password"]', { timeout: 15000 }).catch(() => {});
     await page.waitForSelector('input[name="retypePassword"]', { timeout: 15000 }).catch(() => {});
@@ -553,8 +517,6 @@ async function setWalletPasswordViaBrowser(page, nid) {
     }
     await new Promise(r => setTimeout(r, 3000));
 
-    // Fast success check: the form submit should navigate away / show success.
-    // (No slow login captcha verification — just confirm the form went through.)
     const currentUrl = page.url() || '';
     const success = currentUrl.includes('citizen-home') && !currentUrl.includes('secure-account')
       || (await page.$('#add-password').catch(() => null)) === null;
@@ -566,10 +528,6 @@ async function setWalletPasswordViaBrowser(page, nid) {
   return { username: '', password: '', verified: false };
 }
 
-/**
- * Read ONE candidate OTP from Gmail (the newest unseen email to the alias) and
- * mark it seen. Returns the OTP string or null.
- */
 async function readOneOtpFromGmail({ sinceMs = 10 * 60 * 1000, otpSentAt, to = '' } = {}) {
   const since = otpSentAt
     ? new Date(otpSentAt - 10 * 60 * 1000)
@@ -609,10 +567,6 @@ async function readOneOtpFromGmail({ sinceMs = 10 * 60 * 1000, otpSentAt, to = '
   return null;
 }
 
-/**
- * Verify a given OTP against NIDW and, on success, load the AFRS template and
- * save the QR code. Returns { ok, afrsHtml, jobId, qrImgSrc, qrSaved }.
- */
 async function tryOtpVerify(jar, csrf, hdrs, ref, otp, outputDir, nid) {
   const verHtml = await request(BASE_URL + '/nid-pub/claim-account/partial-views/verification-code?t=' + Date.now(), jar, {
     headers: { 'X-CSRF-TOKEN': csrf, 'X-Requested-With': 'XMLHttpRequest', 'Accept': '*/*' },
@@ -721,7 +675,6 @@ class AddressResolver {
       const divId = this._findId(this.divisions, divVal);
       if (!divId) throw new Error('Division not found: ' + divVal);
       const dists = this.districts[divId] || [];
-      console.log('  -> Division ' + divId + ' has ' + dists.length + ' districts: ' + JSON.stringify(dists.map(d => d.id)));
       const distId = this._findId(dists, distVal);
       if (!distId) throw new Error('District not found in division ' + divId + ': ' + distVal + ' (available: ' + dists.length + ')');
       const upos = this.upozilas[distId] || [];
@@ -761,10 +714,7 @@ async function runBrowserFlow(page, debug, outputDir, params) {
     }
   };
   try {
-  // ---- ALL STEPS via external API (no browser interaction) ----
-  // Only browser is used at the end to display the QR code
 
-  // Step 1: External captcha + NID validate
   _step = '[1/7]';
   emitProgress(1, 5, 'NID যাচাই করা হচ্ছে (captcha solve)...');
   console.log('[1/7] External captcha -> validate...');
@@ -820,7 +770,6 @@ async function runBrowserFlow(page, debug, outputDir, params) {
   console.log('  -> NID validated');
   emitProgress(2, 15, 'NID যাচাই সফল। Address খোঁজা হচ্ছে...');
 
-  // Common API headers
   const hdrs = {
     'X-CSRF-TOKEN': csrf, 'X-Requested-With': 'XMLHttpRequest',
     'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
@@ -829,7 +778,6 @@ async function runBrowserFlow(page, debug, outputDir, params) {
   };
   const ref = BASE_URL + '/nid-pub/claim-account';
 
-  // Step 2: Address (self-healing — retry until validated, never skip on error)
   _step = '[2/7]';
   console.log('[2/7] Selecting address...');
   const resolver = new AddressResolver(jar, { 'X-CSRF-TOKEN': csrf }, ref);
@@ -861,7 +809,6 @@ async function runBrowserFlow(page, debug, outputDir, params) {
   if (!addrOk) throw new Error('Address validation failed after ' + ADDR_MAX_RETRIES + ' attempts — not proceeding to next step');
   emitProgress(3, 25, 'Address নির্বাচন সফল। OTP পাঠানো হচ্ছে...');
 
-  // Step 3: Switch to SMS (mobile) or email + send OTP
   _step = '[3/7]';
   const useSms = (!contactType || contactType === 'sms');
   console.log('[3/7] Sending OTP via ' + (useSms ? 'SMS (mobile)' : 'Email') + '...');
@@ -884,7 +831,7 @@ async function runBrowserFlow(page, debug, outputDir, params) {
       referer: ref,
     });
   }
-  // Wait for SMS status to confirm OTP sent (self-healing: retry, then fail hard)
+  
   let otpFirstSendTime = 0;
   for (let i = 0; i < 5; i++) {
     await new Promise(r => setTimeout(r, 800));
@@ -897,13 +844,11 @@ async function runBrowserFlow(page, debug, outputDir, params) {
   if (!otpFirstSendTime) throw new Error('OTP could not be sent (no confirmation) — not proceeding to next step');
   emitProgress(4, 40, 'OTP পাঠানো হয়েছে। Gmail থেকে OTP পড়া হচ্ছে...');
 
-  // Step 4: Read OTP + verify
   _step = '[4/7]';
   let afrsHtml = '', jobId = '', qrImgSrc = '', qrSaved = false;
 
   if (params.manualOtpSessionId) {
     if (params.autoOtp) {
-      // ---- AUTO OTP MODE: try multiple OTP candidates until one verifies ----
       console.log('[4/7] Auto-reading OTP from Gmail...');
       const OTP_MAX_TRIES = 6;
       let otpVerified = false;
@@ -938,7 +883,6 @@ async function runBrowserFlow(page, debug, outputDir, params) {
       }
       if (!otpVerified) throw new Error('OTP verification failed after ' + OTP_MAX_TRIES + ' attempts');
     } else {
-      // ---- MANUAL OTP MODE ----
       console.log('[4/7] Waiting for manual OTP input (' + params.manualOtpSessionId + ')...');
       const sessionEntry = manualOtpSessions.get(params.manualOtpSessionId);
       if (!sessionEntry) throw new Error('Manual OTP session not found');
@@ -965,7 +909,6 @@ async function runBrowserFlow(page, debug, outputDir, params) {
     throw new Error('manualOtpSessionId is required. Use the manual claim flow (/manual-claim/start).');
   }
 
-  // Decode QR content using Jimp + jsQR (handles both PNG and JPEG)
   let qrDecodedData = '', qrUploadUrl = '', qrFaceJobId = '', qrSavePath = '';
   if (qrSaved) {
     const pngPath = path.join(outputDir, nid + '-qr.png');
@@ -1009,23 +952,19 @@ async function runBrowserFlow(page, debug, outputDir, params) {
   debug.qrUploadUrl = qrUploadUrl;
   debug.qrFaceJobId = qrFaceJobId;
 
-    // Step 5: Face verification — upload face image + commence AFRS
     let faceVerified = false;
     let faceError = '';
     emitProgress(6, 65, 'QR প্রস্তুত। ফেস ম্যাচ শুরু হচ্ছে...');
-    // Random delay (1–5s) to desync concurrent FRS requests and reduce NIDW overload
     await new Promise(r => setTimeout(r, 1000 + Math.random() * 4000));
     if (qrUploadUrl && qrFaceJobId && params.faceUrl) {
     _step = '[5/7]';
     console.log('[5/7] Face verification...');
     try {
-      // Fetch face image from URL
       const faceResp = await fetch(params.faceUrl);
       if (!faceResp.ok) throw new Error('Face image fetch failed: ' + faceResp.status);
       const faceBuf = Buffer.from(await faceResp.arrayBuffer());
       console.log('  -> Face image: ' + faceBuf.length + ' bytes');
 
-      // PUT face image to upload URL
       const putRes = await fetch(qrUploadUrl, {
         method: 'PUT',
         headers: { 'Content-Type': 'image/jpeg' },
@@ -1035,7 +974,6 @@ async function runBrowserFlow(page, debug, outputDir, params) {
       console.log('  -> PUT face: HTTP ' + putRes.status + ' ' + putBody.substring(0, 100));
       if (!putRes.ok) { faceError = 'Face upload failed: HTTP ' + putRes.status + ' ' + putBody.substring(0, 100); throw new Error(faceError); }
 
-      // POST to commence
       const commenceUrl = 'https://prportal.nidw.gov.bd/nid-pub/afrs/v3/commence';
       const commenceRes = await fetch(commenceUrl, {
         method: 'POST',
@@ -1059,14 +997,12 @@ async function runBrowserFlow(page, debug, outputDir, params) {
   debug.faceVerified = faceVerified;
   debug.faceError = faceError;
 
-  // Early exit if face verification failed
   if (faceError && params.faceUrl) {
     console.log('  -> Face verification failed (' + faceError + '). Skipping browser/MQTT/profile. Returning partial data.');
     if (page && !page.isClosed()) { await page.close().catch(() => {}); page = null; }
     return { success: false, error: 'Face verification failed: ' + faceError, debug, qrDecodedData, frsFinalStatus: null };
   }
 
-  // Step 6: Open browser immediately with QR, then listen for MQTT updates
   if (page && !params.headless) {
     _step = '[6/7]';
     console.log('[6/7] Opening browser...');
@@ -1110,7 +1046,6 @@ ${decodedHtml}
     }
   }
 
-  // Subscribe to MQTT and wait for FRS result (may update browser if open)
   console.log('  -> Subscribing to MQTT for FRS status...');
   let frsFinalStatus = null;
   let sigMain = null;
@@ -1119,7 +1054,6 @@ ${decodedHtml}
   let walletUsername = '', walletPassword = '';
   const mqtt = require('mqtt');
   if (jobId) {
-    // FRS retry loop: on ERROR/FAILED, re-commence and listen again
     const FRS_MAX_RETRIES = 3;
     const topic = '/frs/job/' + jobId;
     for (let attempt = 1; attempt <= FRS_MAX_RETRIES; attempt++) {
@@ -1148,7 +1082,6 @@ ${decodedHtml}
     }
   }
 
-  // Step 7: If MQTT returned a final status, load v2-afrs-check for updated content
   if (frsFinalStatus && csrf) {
     _step = '[7/7]';
     emitProgress(6, 88, 'ফেস ম্যাচ ' + frsFinalStatus + ' ✓');
@@ -1162,7 +1095,6 @@ ${decodedHtml}
         const v2Html = v2Resp.body || '';
         console.log('  -> v2-afrs-check loaded: ' + v2Html.length + ' bytes');
 
-        // Parse v2 response JSON for redirect/template (like site's handleSuccessStatus)
         let v2Json;
         try { v2Json = JSON.parse(v2Html); } catch (e) { v2Json = null; }
         if (v2Json && v2Json.status === 'SUCCESS' && v2Json.success) {
@@ -1171,7 +1103,6 @@ ${decodedHtml}
             console.log('  -> Redirect to: ' + redirectUrl);
 
             if (page && !page.isClosed()) {
-              // Set validated cookies and navigate to the redirect URL
               const rawCookies = jar.getAll();
               const cookiePairs = Object.entries(rawCookies).map(([k, v]) => `${k}=${v}`);
               const allCookieStr = cookiePairs.join('; ');
@@ -1186,8 +1117,7 @@ ${decodedHtml}
                 await page.setCookie({ name: 'JSESSIONID', value: rawCookies.JSESSIONID, url: BASE_URL, httpOnly: true, secure: true });
                 await page.reload({ waitUntil: 'networkidle0', timeout: 30000 }).catch(() => {});
               }
-              // ===== Set wallet password through the real "সেট পাসওয়ার্ড" page =====
-              // Works in headless mode too: click #add-password → fill form → submit.
+              
               emitProgress(7, 90, 'ইউজার/পাসওয়ার্ড সেট করা হচ্ছে...');
               const PASSWORD_MAX_ATTEMPTS = 2;
               if (page && !page.isClosed()) {
@@ -1203,7 +1133,6 @@ ${decodedHtml}
                 }
               }
 
-              // Fallback: HTTP add-password if browser is unavailable
               if (!walletUsername) {
                 console.log('  -> Browser set failed, trying HTTP add-password...');
                 try {
@@ -1235,15 +1164,13 @@ ${decodedHtml}
               }
             }
 
-              // Save profile page HTML (with retry if empty data)
               emitProgress(8, 100, 'প্রোফাইল প্রস্তুত হচ্ছে...');
               try {
                 let profileResp = await request(BASE_URL + '/nid-pub/citizen-home/profile', jar, {
                   headers: { 'Accept': 'text/html', 'User-Agent': UA, 'Accept-Language': 'en-US,en;q=0.9' },
                 });
                 if (profileResp.code === 200 && profileResp.body) {
-                  // Check if data looks valid; if empty names, retry once with delay
-                  const hasNameLabels = /[\u0980-\u09FF]{1,10}\s*\(\s*(বাংলা|ইংরেজি)\s*\)/.test(profileResp.body);
+                  const hasNameLabels = /[\u0980-\u09FF]{1,10}\s*\(\s*(বাংলা\vert{}ইংরেজি)\s*\)/.test(profileResp.body);
                   if (!hasNameLabels) {
                     console.log('  -> Profile page data may be incomplete, retrying...');
                     await new Promise(r => setTimeout(r, 2000));
@@ -1257,7 +1184,6 @@ ${decodedHtml}
                   try {
                     const { extractProfile } = require('./extract-profile');
                     const jsonData = extractProfile(profileResp.body, nid);
-                    // Validate: if names are empty, log HTML preview
                     if (!jsonData.nameEnglish && !jsonData.nameBangla) {
                       console.log('  -> WARNING: Profile extraction returned empty names. HTML preview: ' + (profileResp.body || '').replace(/\s+/g, ' ').substring(0, 300));
                       console.log('  -> Retrying extraction with page.goto fallback...');
@@ -1273,7 +1199,6 @@ ${decodedHtml}
                         console.log('  -> Profile re-extracted after fallback');
                       }
                     }
-                    // Download NIDW photo immediately (S3 pre-signed URL expires in 120s)
                     if (jsonData.photoUrl) {
                       try {
                         const photoResp = await fetch(jsonData.photoUrl);
@@ -1304,7 +1229,6 @@ ${decodedHtml}
                 console.log('  -> Profile page error: ' + e.message);
               }
 
-              // Download NID PDF via API + open in browser
               try {
                 const pdfResp = await request(BASE_URL + '/nid-pub/citizen-home/nid/download', jar, {
                   headers: { 'Accept': 'text/html,application/pdf,*/*', 'User-Agent': UA, 'Referer': BASE_URL + '/nid-pub/citizen-home/' },
@@ -1316,13 +1240,11 @@ ${decodedHtml}
                     const pdfPath = path.join(outputDir, nid + '-nid.pdf');
                     fs.writeFileSync(pdfPath, pdfResp.body);
                     console.log('  -> NID PDF saved (' + pdfResp.body.length + ' bytes)');
-                    // Extract images from the PDF
                     try {
                       const { extractPdfImages } = require('./extract-pdf-images');
                       const images = await extractPdfImages(pdfPath, outputDir);
                       const imgMap = {};
                       for (const img of images) imgMap[img.type + '-' + img.page + '-' + (img.index || '')] = img;
-                      // Copy and name sig-main (img-3) and sig-officer (img-5)
                       if (imgMap['image-1-3']) {
                         const src = path.join(outputDir, 'page-1-img-3.png');
                         const dst = path.join(outputDir, 'sig-main.png');
@@ -1338,7 +1260,6 @@ ${decodedHtml}
                     } catch (piErr) {
                       console.log('  -> PDF image extraction error: ' + piErr.message);
                     }
-                    // Extract PDF417 barcode from the PDF
                     try {
                       const { extractBarcodeFromPdf } = require('./extract-barcode');
                       const barcodeResult = await extractBarcodeFromPdf(pdfPath);
@@ -1363,7 +1284,6 @@ ${decodedHtml}
                 console.log('  -> NID download error: ' + e.message);
               }
 
-              // Show profile page in browser (skip in headless mode)
               if (!params.headless) {
                 try {
                   await page.goto(BASE_URL + '/nid-pub/citizen-home/profile', { waitUntil: 'networkidle0', timeout: 30000 }).catch(() => {});
@@ -1375,7 +1295,6 @@ ${decodedHtml}
                 }
               }
           } else if (v2Json.success.template) {
-            // Load template (like site's templateLoader)
             const templatePath = v2Json.success.template;
             console.log('  -> Template: ' + templatePath);
           }
@@ -1385,7 +1304,6 @@ ${decodedHtml}
       console.log('  -> v2-afrs-check error: ' + e.message);
     }
   } else if (!qrSaved && qrImgSrc) {
-    // Fallback: save QR directly if not already saved
     const qrUrl = qrImgSrc.startsWith('http') ? qrImgSrc : BASE_URL + qrImgSrc;
     const qrResp = await request(qrUrl, jar, { binary: true });
     if (qrResp.code === 200 && qrResp.isBinary && qrResp.body.length > 1000) {
@@ -1420,18 +1338,21 @@ ${decodedHtml}
 async function claimAccount(params) {
   const { nid, day, month, year, email, mobile, contactType, faceUrl, gmailTimeout, headless, autoOtp, otpTo, onProgress } = params;
   const debug = {};
+  
+  // Render-এ লোকাল ফোল্ডারেই ফাইল সেভ হবে, Vercel-এর মতো /tmp-এর দরকার নেই
   const outputDir = path.join(__dirname, 'downloads', nid);
   if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
 
   let browser, page;
   try {
     const puppeteer = require('puppeteer');
+    
+    // Render/Linux সার্ভারের জন্য ব্রাউজার লঞ্চ অপশন
     browser = await puppeteer.launch({
       headless: headless === true ? true : false,
-      args: headless
-        ? ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu']
-        : ['--start-maximized', '--disable-gpu', '--disable-dev-shm-usage'],
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu']
     });
+    
     page = await browser.newPage();
     await page.setViewport({ width: 1920, height: 1080 });
     page.on('dialog', d => d.dismiss());
@@ -1471,7 +1392,6 @@ async function fetchAddressData(nidOpts, jarParam, headersParam, refererParam) {
     ...(headersParam || {}),
   };
 
-  // Use provided CSRF, else try jar cookies, else generate uuid
   if (!commonHeaders['X-CSRF-TOKEN']) {
     let csrf = extractCsrf('', jar);
     if (!csrf) csrf = uuidv4();
