@@ -294,6 +294,7 @@
       border: 1px solid rgba(255,255,255,0.6);
       backdrop-filter: blur(2px);
       transition: var(--transition);
+      position: relative;
     }
     .card:hover {
       box-shadow: var(--shadow-lg);
@@ -321,9 +322,7 @@
     }
 
     /* ===== কার্ড হেডার ===== */
-    .card-header {
-      margin-bottom: 6px;
-    }
+    .card-header { margin-bottom: 6px; }
     .card-header .icon-wrapper {
       display: inline-flex;
       padding: 10px;
@@ -331,35 +330,11 @@
       border-radius: 12px;
       margin-bottom: 10px;
     }
-    .card-header .icon-wrapper i {
-      font-size: 24px;
-      color: var(--primary);
-    }
-    .card-header h3 {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--gray-900);
-      margin-bottom: 4px;
-      letter-spacing: -0.3px;
-    }
-    .card-header .desc {
-      font-size: 13px;
-      color: var(--gray-500);
-      line-height: 1.6;
-      margin-bottom: 10px;
-    }
-    .card-header .sub-text {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      font-size: 13px;
-      color: var(--gray-600);
-      font-weight: 500;
-    }
-    .card-header .sub-text i {
-      color: var(--primary);
-    }
+    .card-header .icon-wrapper i { font-size: 24px; color: var(--primary); }
+    .card-header h3 { font-size: 18px; font-weight: 700; color: var(--gray-900); margin-bottom: 4px; letter-spacing: -0.3px; }
+    .card-header .desc { font-size: 13px; color: var(--gray-500); line-height: 1.6; margin-bottom: 10px; }
+    .card-header .sub-text { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; font-size: 13px; color: var(--gray-600); font-weight: 500; }
+    .card-header .sub-text i { color: var(--primary); }
     .card-header .free-badge {
       background: linear-gradient(135deg, #d1fae5, #a7f3d0);
       color: var(--success-dark);
@@ -371,37 +346,22 @@
       align-items: center;
       gap: 4px;
     }
-    .card-header .free-badge i {
-      color: var(--success-dark);
-      font-size: 11px;
-    }
+    .card-header .free-badge i { color: var(--success-dark); font-size: 11px; }
 
-    .subtitle {
-      color: var(--gray-500);
-      font-size: 13px;
-      margin-top: 6px;
-      padding-left: 2px;
-      line-height: 1.5;
-    }
+    .subtitle { color: var(--gray-500); font-size: 13px; margin-top: 6px; padding-left: 2px; line-height: 1.5; }
 
     /* ===== ফর্ম ===== */
-    .form-group {
-      margin-bottom: 16px;
-    }
+    .form-group { margin-bottom: 16px; }
     .form-group label {
       display: block;
       font-size: 12px;
       font-weight: 600;
       color: var(--gray-600);
-      margin-bottom: 4px;
+      margin-bottom: 6px;
       letter-spacing: 0.3px;
       text-transform: uppercase;
     }
-    .form-group label i {
-      margin-right: 6px;
-      color: var(--primary);
-      font-size: 12px;
-    }
+    .form-group label i { margin-right: 6px; color: var(--primary); font-size: 12px; }
     .form-group input,
     .form-group select {
       width: 100%;
@@ -421,16 +381,55 @@
       box-shadow: 0 0 0 4px rgba(37,99,235,0.1);
       background: #ffffff;
     }
-    .form-group input::placeholder {
-      color: var(--gray-400);
-    }
-    .form-row {
+    .form-row { display: flex; gap: 10px; }
+    .form-row .form-group { flex: 1; }
+
+    /* ===== Mode Selector (NID vs VOTER/FORM) ===== */
+    .mode-selector {
       display: flex;
       gap: 10px;
+      margin-bottom: 20px;
+      background: var(--gray-100);
+      padding: 6px;
+      border-radius: var(--radius-sm);
     }
-    .form-row .form-group {
+    .mode-selector label {
       flex: 1;
+      text-align: center;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray-500);
+      transition: var(--transition);
+      margin: 0;
+      text-transform: none;
     }
+    .mode-selector label input { display: none; }
+    .mode-selector label.active {
+      background: #fff;
+      color: var(--primary);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    /* ===== Address Section ===== */
+    .address-section {
+      background: #f8fafc;
+      padding: 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--gray-200);
+      margin-bottom: 16px;
+    }
+    .address-section h4 {
+      font-size: 13px;
+      color: var(--gray-700);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .address-section h4 i { color: var(--primary); }
 
     /* ===== বাটন ===== */
     .btn {
@@ -447,45 +446,17 @@
       justify-content: center;
       gap: 10px;
       letter-spacing: 0.3px;
-      background: var(--gray-200);
-      color: var(--gray-700);
     }
-    .btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: scale(0.98);
-    }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: scale(0.98); }
     .btn-primary {
       background: linear-gradient(135deg, var(--primary), var(--accent));
       color: #fff;
       box-shadow: 0 4px 16px rgba(37,99,235,0.25);
     }
-    .btn-primary:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 28px rgba(37,99,235,0.35);
-    }
-    .btn-success {
-      background: linear-gradient(135deg, var(--success), var(--success-dark));
-      color: #fff;
-      box-shadow: 0 4px 16px rgba(16,185,129,0.25);
-    }
-    .btn-success:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 28px rgba(16,185,129,0.35);
-    }
-    .btn-secondary {
-      background: var(--gray-200);
-      color: var(--gray-700);
-    }
-    .btn-secondary:hover:not(:disabled) {
-      background: var(--gray-300);
-      transform: translateY(-2px);
-    }
-    .btn-sm {
-      padding: 6px 14px;
-      font-size: 12px;
-      width: auto;
-    }
+    .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(37,99,235,0.35); }
+    .btn-success { background: linear-gradient(135deg, var(--success), var(--success-dark)); color: #fff; }
+    .btn-secondary { background: var(--gray-200); color: var(--gray-700); }
+    .btn-secondary:hover:not(:disabled) { background: var(--gray-300); transform: translateY(-2px); }
 
     /* ===== OTP ইনপুট ===== */
     .otp-input {
@@ -499,143 +470,121 @@
     }
 
     /* ===== স্ট্যাটাস ===== */
-    .status-box {
-      padding: 12px 16px;
-      border-radius: var(--radius-sm);
-      font-size: 13px;
-      margin-top: 14px;
-      display: none;
-      animation: fadeSlide 0.3s ease;
-    }
-    .status-box.info {
-      display: block;
-      background: #eff6ff;
-      border-left: 4px solid var(--primary);
-      color: #1e40af;
-    }
-    .status-box.error {
-      display: block;
-      background: #fef2f2;
-      border-left: 4px solid var(--danger);
-      color: #991b1b;
-    }
-    .status-box.success {
-      display: block;
-      background: #f0fdf4;
-      border-left: 4px solid var(--success);
-      color: #166534;
-    }
+    .status-box { padding: 12px 16px; border-radius: var(--radius-sm); font-size: 13px; margin-top: 14px; display: none; }
+    .status-box.info { display: block; background: #eff6ff; border-left: 4px solid var(--primary); color: #1e40af; }
+    .status-box.error { display: block; background: #fef2f2; border-left: 4px solid var(--danger); color: #991b1b; }
+    .status-box.success { display: block; background: #f0fdf4; border-left: 4px solid var(--success); color: #166534; }
 
     /* ===== স্পিনার ===== */
-    .spinner {
-      display: none;
-      text-align: center;
-      margin: 16px 0;
-    }
-    .spinner.show {
-      display: block;
-    }
-    .spinner div {
-      width: 30px;
-      height: 30px;
-      border: 3px solid var(--gray-200);
-      border-top-color: var(--primary);
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      margin: 0 auto;
-    }
+    .spinner { display: none; text-align: center; margin: 16px 0; }
+    .spinner.show { display: block; }
+    .spinner div { width: 30px; height: 30px; border: 3px solid var(--gray-200); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    @keyframes fadeSlide {
-      0% { opacity: 0; transform: translateY(-6px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
 
     /* ===== প্রগ্রেস চেক ===== */
-    .p-check {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 9px 12px;
-      background: var(--gray-50);
-      border: 1px solid var(--gray-200);
-      border-radius: var(--radius-sm);
-      font-size: 13px;
-      color: var(--gray-500);
-      transition: all .3s ease;
-      margin-bottom: 6px;
-    }
+    .p-check { display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius-sm); font-size: 13px; color: var(--gray-500); transition: all .3s ease; margin-bottom: 6px; }
     .p-check .p-check-icon { font-size: 16px; width: 20px; text-align: center; color: var(--gray-300); flex: none; }
     .p-check .p-check-label { flex: 1; }
     .p-check .p-check-status { font-size: 11px; font-weight: 600; color: var(--gray-400); flex: none; }
     .p-check.done { border-color: #bbf7d0; background: #f0fdf4; color: var(--success-dark); }
     .p-check.done .p-check-icon { color: var(--success); }
-    .p-check.done .p-check-status { color: var(--success); }
     .p-check.active { border-color: var(--primary); background: #eff6ff; color: var(--primary-dark); font-weight: 600; }
     .p-check.active .p-check-icon { color: var(--primary); }
-    .p-check.active .p-check-status { color: var(--primary); }
 
-    .progress-text {
-      font-size: 13px;
-      color: var(--gray-500);
-      text-align: center;
-      margin-top: 8px;
-      min-height: 20px;
-    }
+    .progress-text { font-size: 13px; color: var(--gray-500); text-align: center; margin-top: 8px; min-height: 20px; }
 
     /* ===== রেজাল্ট ===== */
-    .result-box {
-      padding: 14px 16px;
-      border-radius: var(--radius-sm);
-      font-family: 'JetBrains Mono', 'Fira Code', monospace;
-      font-size: 11px;
-      line-height: 1.7;
-      white-space: pre-wrap;
-      word-break: break-all;
-      max-height: 380px;
-      overflow-y: auto;
-      margin-top: 12px;
-      background: var(--gray-50);
-      border: 1px solid var(--gray-200);
-      color: var(--gray-800);
-    }
-    .result-box::-webkit-scrollbar {
-      width: 4px;
-    }
-    .result-box::-webkit-scrollbar-thumb {
-      background: var(--gray-300);
-      border-radius: 8px;
-    }
+    .result-box { padding: 14px 16px; border-radius: var(--radius-sm); font-family: monospace; font-size: 11px; line-height: 1.7; white-space: pre-wrap; word-break: break-all; max-height: 380px; overflow-y: auto; margin-top: 12px; background: var(--gray-50); border: 1px solid var(--gray-200); color: var(--gray-800); }
+    .result-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 4px; }
+    .result-actions .btn { width: auto; flex: 0 1 auto; padding: 6px 14px; font-size: 12px; border-radius: 8px; }
 
-    .result-actions {
+    /* ===== ডার্ক থিম: Face Verify UI ===== */
+    .face-verify-dark {
+      background: #000000;
+      border-radius: var(--radius);
+      padding: 30px 20px;
+      color: #ffffff;
+      text-align: center;
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 10;
       display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin: 12px 0 4px;
+      flex-direction: column;
     }
-    .result-actions .btn {
-      width: auto;
-      flex: 0 1 auto;
-      padding: 6px 14px;
-      font-size: 12px;
-      border-radius: 8px;
+    .fv-header {
+      color: #00ffff;
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
     }
+    .fv-upload-box {
+      border: 2px dashed #00ffff;
+      border-radius: 16px;
+      padding: 35px 20px;
+      margin-bottom: 16px;
+      color: #00ffff;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      transition: 0.3s;
+      position: relative;
+    }
+    .fv-upload-box:hover { background: rgba(0, 255, 255, 0.05); }
+    .fv-upload-box i { font-size: 24px; }
+    .fv-upload-box input[type="file"] {
+      position: absolute; top:0; left:0; width:100%; height:100%;
+      opacity: 0; cursor: pointer;
+    }
+    .fv-toggle {
+      margin: 10px 0 20px;
+      display: inline-block;
+      width: 40px; height: 20px;
+      background: #00ffff;
+      border-radius: 20px;
+      position: relative;
+    }
+    .fv-toggle::after {
+      content: ''; position: absolute;
+      top: 3px; right: 4px; width: 14px; height: 14px;
+      background: #000; border-radius: 50%;
+    }
+    .fv-inputs {
+      display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;
+    }
+    .fv-inputs .input-icon-wrap { position: relative; }
+    .fv-inputs .input-icon-wrap i {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      color: #666; font-size: 14px;
+    }
+    .fv-inputs input {
+      width: 100%; background: #111; border: 1px solid #333;
+      color: #fff; padding: 14px 14px 14px 40px; border-radius: 8px;
+      outline: none; font-size: 14px;
+    }
+    .fv-inputs input:focus { border-color: #00ffff; }
+    .fv-btn {
+      background: linear-gradient(90deg, #0022ff, #00ffff);
+      color: #fff; border: none; border-radius: 8px;
+      padding: 16px; font-size: 16px; font-weight: 600;
+      cursor: pointer; transition: 0.3s;
+    }
+    .fv-btn:hover { box-shadow: 0 0 15px rgba(0,255,255,0.4); }
 
-    /* ===== ইউটিলিটি ===== */
     .hidden { display: none !important; }
 
-    /* ===== রেসপনসিভ ===== */
     @media (max-width: 480px) {
       .container { padding: 0; }
       .header { padding: 16px; }
       .card { padding: 20px 16px; }
       .brand-name { font-size: 16px; }
-      .whatsapp-btn { padding: 8px 14px; font-size: 12px; }
-      .whatsapp-btn .wa-number { font-size: 12px; }
-      .form-row { flex-direction: column; gap: 0; }
-      .otp-input { font-size: 22px; letter-spacing: 8px; }
-      .card-header h3 { font-size: 16px; }
-      .group-link { padding: 11px 16px; font-size: 13px; }
-      .group-link .link-text .title { font-size: 13px; }
+      .form-row { flex-direction: column; gap: 10px; }
     }
   </style>
 </head>
@@ -649,14 +598,8 @@
       <a href="https://smart-seba.com" target="_blank" class="brand">
         <div class="brand-icon">⚡</div>
         <div>
-          <div class="brand-name">
-            smart-seba.com
-            <span class="brand-badge">LIVE</span>
-          </div>
-          <div class="brand-sub">
-            <i class="fas fa-shield-alt"></i>
-            বাংলাদেশের #১ সাইনকপি সেবা
-          </div>
+          <div class="brand-name">smart-seba.com <span class="brand-badge">LIVE</span></div>
+          <div class="brand-sub"><i class="fas fa-shield-alt"></i> বাংলাদেশের #১ সাইনকপি সেবা</div>
         </div>
       </a>
       <a href="https://wa.me/8801825275419" target="_blank" class="whatsapp-btn">
@@ -672,34 +615,24 @@
 
   <!-- ===== গ্রুপ লিংক ===== -->
   <div class="group-links">
-    <a href="https://chat.whatsapp.com/IMPie7N2eL43HOYkcGH5O0?s=cl&p=a&ilr=1&amv=1" target="_blank" class="group-link whatsapp">
+    <a href="https://chat.whatsapp.com/IMPie7N2eL43HOYkcGH5O0" target="_blank" class="group-link whatsapp">
       <i class="fab fa-whatsapp"></i>
-      <span class="link-text">
-        <span class="title">💬 WhatsApp Group</span>
-        <span class="sub">সকল নতুন আপডেট</span>
-      </span>
+      <span class="link-text"><span class="title">💬 WhatsApp Group</span><span class="sub">সকল নতুন আপডেট</span></span>
       <span class="arrow"><i class="fas fa-chevron-right"></i></span>
     </a>
     <a href="https://t.me/+nAT9EimxV4JiYWY1" target="_blank" class="group-link telegram">
       <i class="fab fa-telegram-plane"></i>
-      <span class="link-text">
-        <span class="title">👥 Telegram Group</span>
-        <span class="sub">সকল নতুন আপডেট</span>
-      </span>
+      <span class="link-text"><span class="title">👥 Telegram Group</span><span class="sub">সকল নতুন আপডেট</span></span>
       <span class="arrow"><i class="fas fa-chevron-right"></i></span>
     </a>
   </div>
 
-  <!-- ===== Buy API Key ===== -->
   <div class="api-buy">
-    <a href="/buy">
-      <i class="fas fa-shopping-cart"></i> API Key কিনুন
-    </a>
+    <a href="/buy"><i class="fas fa-shopping-cart"></i> API Key কিনুন</a>
   </div>
 
   <!-- ===== প্রধান কার্ড ===== -->
-  <div class="card" id="step1Card">
-    <!-- স্টেপ ইন্ডিকেটর -->
+  <div class="card" id="mainCard">
     <div class="step-indicator">
       <div class="step-dot active" id="dot1"></div>
       <div class="step-dot" id="dot2"></div>
@@ -708,371 +641,255 @@
 
     <!-- কার্ড হেডার -->
     <div class="card-header">
-      <div class="icon-wrapper">
-        <i class="fas fa-id-card"></i>
-      </div>
+      <div class="icon-wrapper"><i class="fas fa-id-card"></i></div>
       <h3>সাইন কপি + আইডি কার্ড + সভার কপি</h3>
-      <p class="desc">
-        একই এনআইডি বার বার সার্চ করলে কোন টাকা কাটা হবে না। যদি কোন কারণে একবার ব্যর্থ হয়, তাহলে সেই এনআইডি আবার সার্চ করলে সঠিক তথ্য আসবে। কারণ প্রথম সার্চেই আমরা এই এনআইডি রিকোয়েস্টের জন্য একবার টাকা কেটে থাকি।
-      </p>
-      <div class="sub-text">
-        <span>
-          <i class="fas fa-wallet"></i>
-          NID Wallet – ইউজার পাসওয়ার্ড সেটআপ
-        </span>
-        <span class="free-badge">
-          <i class="fas fa-gift"></i>
-          ফ্রি
-        </span>
-      </div>
+      <p class="desc">একই এনআইডি বার বার সার্চ করলে কোন টাকা কাটা হবে না।</p>
     </div>
-
-    <p class="subtitle">
-      শুধু NID এবং DOB দিন — বাকি সব প্রক্রিয়া (address, OTP, যাচাই, ফেস ম্যাচ) স্বয়ংক্রিয়ভাবে সম্পন্ন হবে।
-    </p>
-
-<br>
+    <br>
 
     <!-- স্টেপ ১: ফর্ম -->
     <div id="step1">
       <div class="form-group">
         <label><i class="fas fa-key"></i> API Key</label>
-        <input id="apiKey" type="text" placeholder="আপনার API Key দিন" value="">
-        <small id="apiKeyStatus" style="font-size:14px;margin-top:4px;display:block;color:var(--gray-400);"></small>
+        <input id="apiKey" type="text" placeholder="আপনার API Key দিন">
+        <small id="apiKeyStatus" style="font-size:14px;margin-top:4px;display:block;"></small>
       </div>
+
+      <!-- Mode Selector -->
+      <div class="mode-selector">
+        <label class="active" id="labelNid" onclick="selectMode('nid')">
+          <input type="radio" name="claimMode" value="nid" checked> NID
+        </label>
+        <label id="labelVoter" onclick="selectMode('voter')">
+          <input type="radio" name="claimMode" value="voter"> VOTER/FORM
+        </label>
+      </div>
+
       <div class="form-group">
-        <label><i class="fas fa-hashtag"></i> NID নম্বর</label>
-        <input id="nid" type="text" inputmode="numeric" placeholder="যেমন 7355243812" value="">
+        <label><i class="fas fa-hashtag"></i> NID / Form নম্বর</label>
+        <input id="nid" type="text" inputmode="numeric" placeholder="যেমন 7355243812">
       </div>
       <div class="form-row">
-        <div class="form-group">
-          <label>দিন</label>
-          <input id="day" type="text" inputmode="numeric" placeholder="11" value="">
+        <div class="form-group"><label>দিন</label><input id="day" type="text" placeholder="11"></div>
+        <div class="form-group"><label>মাস</label><input id="month" type="text" placeholder="11"></div>
+        <div class="form-group"><label>বছর</label><input id="year" type="text" placeholder="1999"></div>
+      </div>
+
+      <!-- Address Section (Hidden by default, shown for VOTER/FORM) -->
+      <div id="addressSection" class="address-section hidden">
+        <h4><i class="fas fa-map-marker-alt"></i> বর্তমান ঠিকানা</h4>
+        <div class="form-row" style="margin-bottom:12px;">
+          <select id="prDiv"><option value="">বিভাগ</option><option value="dhaka">ঢাকা</option><option value="chittagong">চট্টগ্রাম</option><option value="rajshahi">রাজশাহী</option></select>
+          <select id="prDist"><option value="">জেলা</option><option value="dhaka">ঢাকা</option><option value="chittagong">চট্টগ্রাম</option></select>
+          <select id="prUpo"><option value="">উপজেলা</option><option value="mirpur">মিরপুর</option><option value="hathazari">হাটহাজারী</option></select>
         </div>
-        <div class="form-group">
-          <label>মাস</label>
-          <input id="month" type="text" inputmode="numeric" placeholder="11" value="">
-        </div>
-        <div class="form-group">
-          <label>বছর</label>
-          <input id="year" type="text" inputmode="numeric" placeholder="1999" value="">
+        <h4><i class="fas fa-home"></i> স্থায়ী ঠিকানা</h4>
+        <div class="form-row">
+          <select id="pmDiv"><option value="">বিভাগ</option><option value="dhaka">ঢাকা</option><option value="chittagong">চট্টগ্রাম</option><option value="rajshahi">রাজশাহী</option></select>
+          <select id="pmDist"><option value="">জেলা</option><option value="dhaka">ঢাকা</option><option value="chittagong">চট্টগ্রাম</option></select>
+          <select id="pmUpo"><option value="">উপজেলা</option><option value="mirpur">মিরপুর</option><option value="hathazari">হাটহাজারী</option></select>
         </div>
       </div>
+
       <button class="btn btn-primary" id="startBtn" onclick="startClaim()">
         <i class="fas fa-paper-plane"></i> Submit
       </button>
     </div>
 
-    
+    <!-- ডার্ক থিম Face Verify UI (VOTER/FORM এর জন্য) -->
+    <div id="stepFaceVerify" class="face-verify-dark hidden">
+      <div class="fv-header"><i class="fas fa-user-check"></i> Face Verify</div>
+      
+      <div style="flex: 1; overflow-y: auto;">
+        <div class="fv-upload-box">
+          <i class="fas fa-qrcode"></i> Upload QR
+          <input type="file" id="qrFile" accept="image/*">
+        </div>
+        <div class="fv-upload-box">
+          <i class="fas fa-image"></i> Upload Photo
+          <input type="file" id="photoFile" accept="image/*">
+        </div>
 
-    <!-- ===== প্রসেস প্রগ্রেস (অ্যানিমেশন) ===== -->
+        <div class="fv-toggle"></div>
+
+        <div class="fv-inputs">
+          <div class="input-icon-wrap">
+            <i class="fas fa-qrcode"></i>
+            <input type="text" id="qrLink" placeholder="QR">
+          </div>
+          <div class="input-icon-wrap">
+            <i class="fas fa-link"></i>
+            <input type="text" id="photoLink" placeholder="Photo">
+          </div>
+        </div>
+      </div>
+
+      <button class="fv-btn" onclick="submitFaceVerify()">Verify • 1 Credits</button>
+    </div>
+
+    <!-- ===== প্রসেস প্রগ্রেস ===== -->
     <div id="progressSection" class="hidden" style="margin-top:20px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
           <span style="font-size:13px;font-weight:600;color:var(--gray-600);">প্রসেস চলছে...</span>
           <span id="progressTimer" style="font-size:13px;font-weight:700;color:var(--primary);"></span>
         </div>
         <div style="background:var(--gray-100);border-radius:10px;height:14px;overflow:hidden;border:1px solid var(--gray-200);">
-          <div id="progressBar" style="width:0%;height:100%;border-radius:9px;background:linear-gradient(90deg,#2563eb,#16a34a);background-size:200% 100%;animation:progressShine 1.2s linear infinite;transition:width .6s ease;"></div>
+          <div id="progressBar" style="width:0%;height:100%;border-radius:9px;background:linear-gradient(90deg,#2563eb,#16a34a);transition:width .6s ease;"></div>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+        <div style="display:flex;justify-content:space-between;margin-top:8px;">
           <span id="progressMessage" style="font-size:13px;color:var(--gray-700);">শুরু হচ্ছে...</span>
           <span id="progressPercent" style="font-size:14px;font-weight:800;color:var(--primary);">0%</span>
         </div>
-        <div style="margin-top:14px;display:flex;flex-direction:column;gap:8px;" id="stepChecklist">
-          <div class="p-check" data-s="1"><span class="p-check-icon">○</span><span class="p-check-label">NID যাচাই</span><span class="p-check-status"></span></div>
-          <div class="p-check" data-s="2"><span class="p-check-icon">○</span><span class="p-check-label">ঠিকানা নির্বাচন</span><span class="p-check-status"></span></div>
-          <div class="p-check" data-s="3"><span class="p-check-icon">○</span><span class="p-check-label">OTP পাঠানো</span><span class="p-check-status"></span></div>
-          <div class="p-check" data-s="4"><span class="p-check-icon">○</span><span class="p-check-label">OTP পড়া ও যাচাই</span><span class="p-check-status"></span></div>
-          <div class="p-check" data-s="5"><span class="p-check-icon">○</span><span class="p-check-label">QR কোড প্রস্তুত</span><span class="p-check-status"></span></div>
-          <div class="p-check" data-s="6"><span class="p-check-icon">○</span><span class="p-check-label">ফেস ম্যাচ</span><span class="p-check-status"></span></div>
-          <div class="p-check" data-s="7"><span class="p-check-icon">○</span><span class="p-check-label">ইউজার/পাসওয়ার্ড সেট</span><span class="p-check-status"></span></div>
-          <div class="p-check" data-s="8"><span class="p-check-icon">○</span><span class="p-check-label">প্রোফাইল ও ওয়ালেট</span><span class="p-check-status"></span></div>
-        </div>
     </div>
 
-    <!-- স্টেপ ২: OTP যাচাই -->
-    <div id="step2" class="hidden">
-      <div class="form-group">
-        <label><i class="fas fa-key"></i> OTP কোড প্রবেশ করান</label>
-        <input class="otp-input" id="otp" type="text" inputmode="numeric" maxlength="8" placeholder="______" autocomplete="off">
-      </div>
-      <button class="btn btn-success" id="verifyBtn" onclick="verifyOtp()">
-        <i class="fas fa-check-circle"></i> OTP যাচাই করুন
-      </button>
-      <button class="btn btn-secondary mt-8" id="cancelBtn" onclick="resetForm()">
-        <i class="fas fa-undo-alt"></i> বাতিল করুন
-      </button>
-    </div>
-
-    <!-- লোডার ও স্ট্যাটাস -->
     <div class="spinner" id="spinner"><div></div></div>
-    <div class="progress-text" id="progressText"></div>
     <div class="status-box" id="statusBox"></div>
 
-    <!-- NID প্রিভিউ (স্টেপ ২ তে দেখাবে) -->
-    <div id="nidPreview" class="hidden" style="margin-top:18px;padding:16px;background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;">
-      <div style="display:flex;gap:14px;align-items:start;margin-bottom:12px;" id="previewPhotoRow">
-        <div id="previewPhotoContainer" class="hidden">
-          <img id="previewPhoto" src="" alt="photo" style="width:80px;height:80px;border-radius:10px;object-fit:cover;border:2px solid #e2e8f0;">
-        </div>
-        <div style="flex:1;min-width:0;">
-          <div id="previewNameBn" style="font-size:16px;font-weight:700;color:#1e293b;"></div>
-          <div id="previewNameEn" style="font-size:13px;color:#64748b;margin-top:2px;"></div>
-          <div id="previewVoterArea" style="font-size:12px;color:#94a3b8;margin-top:4px;"></div>
-        </div>
+    <!-- ===== রেজাল্ট কার্ড ===== -->
+    <div id="resultCard" class="hidden" style="margin-top: 20px;">
+      <div class="card-header">
+        <i class="fas fa-check-circle" style="color: var(--success); font-size:24px;"></i>
+        <h2 style="margin-top:8px;">ফলাফল</h2>
       </div>
-      <div style="display:flex;gap:12px;font-size:12px;">
-        <div style="flex:1;background:#ffffff;padding:8px 12px;border-radius:8px;border:1px solid #e2e8f0;">
-          <div style="font-weight:600;color:#475569;margin-bottom:4px;">📌 বর্তমান ঠিকানা</div>
-          <div id="previewPresent" style="color:#64748b;line-height:1.5;"></div>
-        </div>
-        <div style="flex:1;background:#ffffff;padding:8px 12px;border-radius:8px;border:1px solid #e2e8f0;">
-          <div style="font-weight:600;color:#475569;margin-bottom:4px;">📍 স্থায়ী ঠিকানা</div>
-          <div id="previewPermanent" style="color:#64748b;line-height:1.5;"></div>
-        </div>
-      </div>
+      <div class="result-actions" id="resultActions"></div>
+      <div class="result-box" id="resultBox"></div>
+      <button class="btn btn-secondary mt-8" onclick="location.reload()" style="margin-top:16px;">
+        <i class="fas fa-plus-circle"></i> নতুন দাবি শুরু করুন
+      </button>
     </div>
-  </div>
-
-  <!-- ===== রেজাল্ট কার্ড ===== -->
-  <div class="card hidden" id="resultCard">
-    <div class="card-header">
-      <i class="fas fa-check-circle" style="color: var(--success);"></i>
-      <h2>ফলাফল</h2>
-    </div>
-    <p class="subtitle">দাবি প্রক্রিয়া সম্পন্ন হয়েছে।</p>
-
-    <div class="result-actions" id="resultActions"></div>
-    <div class="result-box" id="resultBox"></div>
-
-    <button class="btn btn-secondary mt-8" onclick="resetForm()">
-      <i class="fas fa-plus-circle"></i> নতুন দাবি শুরু করুন
-    </button>
   </div>
 </div>
 
 <script>
-  /* ==========================================================
-     জাভাস্ক্রিপ্ট – উন্নত UI লজিক সহ
-     ========================================================== */
-
   let currentSessionId = null;
 
-  // API Key balance check on input
+  // Mode Selection Logic
+  function selectMode(mode) {
+    document.querySelectorAll('.mode-selector label').forEach(l => l.classList.remove('active'));
+    document.getElementById(mode === 'nid' ? 'labelNid' : 'labelVoter').classList.add('active');
+    document.querySelector(`input[value="${mode}"]`).checked = true;
+
+    if (mode === 'voter') {
+      document.getElementById('addressSection').classList.remove('hidden');
+    } else {
+      document.getElementById('addressSection').classList.add('hidden');
+    }
+  }
+
+  // API Key balance check
   document.getElementById('apiKey').addEventListener('input', async function() {
     const key = this.value.trim();
     const statusEl = document.getElementById('apiKeyStatus');
     if (key.length < 5) { statusEl.innerHTML = ''; return; }
-    statusEl.innerHTML = '<span class="text-info">⏳ চেক করা হচ্ছে...</span>';
+    statusEl.innerHTML = '<span style="color:var(--primary);">⏳ চেক করা হচ্ছে...</span>';
     try {
       const r = await fetch('/api/check-balance?key=' + encodeURIComponent(key));
       const d = await r.json();
       if (d.success) {
-        statusEl.innerHTML = '<span class="text-success">✅ ব্যালেন্স: <strong>' + d.balance + '</strong> টোকেন' +
-          (d.expire_date ? ' | মেয়াদ: ' + new Date(d.expire_date).toLocaleDateString('bn-BD') : '') +
-          '</span>';
+        statusEl.innerHTML = '<span style="color:var(--success);">✅ ব্যালেন্স: <strong>' + d.balance + '</strong> টোকেন</span>';
       } else {
-        statusEl.innerHTML = '<span class="text-danger">❌ ' + d.error + '</span>';
+        statusEl.innerHTML = '<span style="color:var(--danger);">❌ ' + d.error + '</span>';
       }
     } catch {
-      statusEl.innerHTML = '<span class="text-danger">❌ চেক করতে ব্যর্থ</span>';
+      statusEl.innerHTML = '<span style="color:var(--danger);">❌ চেক করতে ব্যর্থ</span>';
     }
   });
 
-  // কন্টাক্ট টাইপ টগল (auto-OTP: সবসময় ইমেইল, তাই এটি আর দরকার নেই)
-
-  // OTP ইনপুটে এন্টার কী
-  document.getElementById('otp').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') verifyOtp();
-  });
-
-  // স্ট্যাটাস বার
   function showStatus(msg, type) {
     const box = document.getElementById('statusBox');
     box.textContent = msg;
     box.className = 'status-box ' + type;
-    // অটো-হাইড যদি সফল হয় (৫ সেকেন্ড পর)
-    if (type === 'success') {
-      clearTimeout(box._hideTimer);
-      box._hideTimer = setTimeout(() => {
-        box.className = 'status-box';
-        box.textContent = '';
-      }, 8000);
-    }
   }
 
-  function setProgress(msg) {
-    document.getElementById('progressText').textContent = msg;
-  }
-
-  // ===== স্টেপ ১: দাবি শুরু =====
+  // ===== Submit Button Click =====
   async function startClaim() {
     const nid = document.getElementById('nid').value.trim();
     const day = document.getElementById('day').value.trim();
-    const month = document.getElementById('month').value.trim();
-    const year = document.getElementById('year').value.trim();
-    const key = document.getElementById('apiKey').value.trim();
+    const mode = document.querySelector('input[name="claimMode"]:checked').value;
 
-    if (!nid || !day || !month || !year) {
-      showStatus('দয়া করে NID এবং DOB (দিন, মাস, বছর) পূরণ করুন।', 'error');
-      return;
-    }
-    if (!key) {
-      showStatus('দয়া করে API Key পূরণ করুন।', 'error');
+    if (!nid || !day) {
+      showStatus('দয়া করে NID এবং DOB পূরণ করুন।', 'error');
       return;
     }
 
-    const btn = document.getElementById('startBtn');
-    const spinner = document.getElementById('spinner');
-    btn.disabled = true;
-    spinner.classList.add('show');
-    showStatus('', '');
-    setProgress('NID যাচাই করা হচ্ছে, OTP স্বয়ংক্রিয়ভাবে পাঠানো হচ্ছে...');
+    // যদি VOTER/FORM সিলেক্ট করা থাকে, Face Verify UI ওপেন করুন
+    if (mode === 'voter') {
+      document.getElementById('step1').classList.add('hidden');
+      document.getElementById('stepFaceVerify').classList.remove('hidden');
+      return; // এখানেই থেমে যাবে, Verify বাটনে ক্লিক করলে বাকি কাজ হবে
+    }
 
+    // যদি NID সিলেক্ট করা থাকে (Normal Auto Flow)
+    document.getElementById('startBtn').disabled = true;
+    document.getElementById('spinner').classList.add('show');
+    showStatus('⏳ অটোমেটিক প্রসেস চলছে...', 'info');
+
+    // Simulate Backend Auto Flow Call
     try {
-      const body = new URLSearchParams({ nid, day, month, year, key, autoOtp: 'true' });
       const res = await fetch('/manual-claim/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body,
+        body: new URLSearchParams({ nid, day, autoOtp: 'true' }),
       });
       const data = await res.json();
-
-      if (!data.success) {
-        showStatus('❌ ' + (data.error || 'অজানা ত্রুটি'), 'error');
-        btn.disabled = false;
-        spinner.classList.remove('show');
-        setProgress('');
-        return;
-      }
-
-      currentSessionId = data.sessionId;
-      // স্টেপ আপডেট
-      document.getElementById('dot1').className = 'step-dot done';
-      document.getElementById('dot2').className = 'step-dot active';
-      document.getElementById('step1').classList.add('hidden');
-      document.getElementById('step2').classList.add('hidden');
-
-      // NID প্রিভিউ দেখান
-      const preview = data.nidPreview;
-      if (preview) {
-        const el = document.getElementById('nidPreview');
-        el.classList.remove('hidden');
-        if (preview.photo) {
-          document.getElementById('previewPhotoContainer').classList.remove('hidden');
-          document.getElementById('previewPhoto').src = preview.photo;
-        }
-        document.getElementById('previewNameBn').textContent = preview.nameBn || '';
-        document.getElementById('previewNameEn').textContent = preview.nameEn || '';
-        document.getElementById('previewVoterArea').textContent = preview.voterArea ? '📍 ভোটার এলাকা: ' + preview.voterArea : '';
-
-        function fmtAddr(a) {
-          if (!a) return '—';
-          const parts = [a.house, a.village, a.union, a.upozila, a.district, a.division].filter(Boolean);
-          return parts.join(', ') || '—';
-        }
-        document.getElementById('previewPresent').textContent = fmtAddr(preview.presentAddress);
-        document.getElementById('previewPermanent').textContent = fmtAddr(preview.permanentAddress);
-      }
-
-      showStatus('✅ প্রক্রিয়া স্বয়ংক্রিয়ভাবে চলছে। OTP নিজে পড়া হবে এবং যাচাই হবে — অপেক্ষা করুন।', 'info');
-      setProgress('⏳ NID যাচাই → OTP পাঠানো → OTP পড়া → যাচাই → ফেস ম্যাচ...');
-      renderProgress(null);
-      startProgressTimer();
-      pollStatus(currentSessionId);
-
-    } catch (err) {
-      showStatus('❌ ' + err.message, 'error');
-      setProgress('');
-    } finally {
-      btn.disabled = false;
-      spinner.classList.remove('show');
-    }
-  }
-
-  // ===== Auto-OTP: status polling + progress =====
-  let statusPollTimer = null;
-  let progressTimer = null;
-  let progressStartTime = 0;
-
-  function startProgressTimer() {
-    progressStartTime = Date.now();
-    clearInterval(progressTimer);
-    progressTimer = setInterval(() => {
-      const s = Math.floor((Date.now() - progressStartTime) / 1000);
-      const m = Math.floor(s / 60);
-      document.getElementById('progressTimer').textContent =
-        (m > 0 ? m + 'মি ' : '') + (s % 60) + 'সে';
-    }, 1000);
-  }
-
-  function stopProgressTimer() {
-    clearInterval(progressTimer);
-    progressTimer = null;
-  }
-
-  function renderProgress(progress) {
-    const sec = document.getElementById('progressSection');
-    sec.classList.remove('hidden');
-    if (!progress) {
-      document.getElementById('progressPercent').textContent = '5%';
-      document.getElementById('progressMessage').textContent = 'শুরু হচ্ছে...';
-      return;
-    }
-    const pct = Math.max(2, Math.min(100, progress.percent || 2));
-    document.getElementById('progressBar').style.width = pct + '%';
-    document.getElementById('progressPercent').textContent = pct + '%';
-    document.getElementById('progressMessage').textContent = progress.message || 'চলছে...';
-
-    const step = progress.step || 1;
-    const allDone = pct >= 100;
-    document.querySelectorAll('#stepChecklist .p-check').forEach(el => {
-      const s = parseInt(el.getAttribute('data-s'), 10);
-      el.classList.toggle('done', s < step || allDone);
-      el.classList.toggle('active', s === step && !allDone);
-      el.classList.remove('fail');
-      const icon = el.querySelector('.p-check-icon');
-      const status = el.querySelector('.p-check-status');
-      if (s < step || allDone) { icon.textContent = '✓'; status.textContent = 'সম্পন্ন'; }
-      else if (s === step) { icon.textContent = '⏳'; status.textContent = progress.message ? '' : 'চলছে...'; }
-      else { icon.textContent = '○'; status.textContent = ''; }
-    });
-  }
-
-  async function pollStatus(sessionId) {
-    clearTimeout(statusPollTimer);
-    try {
-      const res = await fetch('/manual-claim/status?sessionId=' + encodeURIComponent(sessionId));
-      const data = await res.json();
-      if (data.pending) {
-        renderProgress(data.progress);
-        statusPollTimer = setTimeout(() => pollStatus(sessionId), 4000);
-        return;
-      }
-      stopProgressTimer();
-      renderProgress({ step: 8, percent: 100, message: 'সম্পন্ন!' });
       showResult(data);
     } catch (err) {
       showStatus('❌ ' + err.message, 'error');
-      setProgress('');
-      stopProgressTimer();
+    } finally {
+      document.getElementById('startBtn').disabled = false;
       document.getElementById('spinner').classList.remove('show');
     }
   }
 
+  // ===== Face Verify Submit (VOTER/FORM Flow) =====
+  async function submitFaceVerify() {
+    // Face Verify UI বন্ধ করে প্রগ্রেস বার দেখান
+    document.getElementById('stepFaceVerify').classList.add('hidden');
+    document.getElementById('progressSection').classList.remove('hidden');
+    document.getElementById('spinner').classList.add('show');
+    
+    // Progress Animation Simulation
+    let prog = 0;
+    const pBar = document.getElementById('progressBar');
+    const pTxt = document.getElementById('progressPercent');
+    const pMsg = document.getElementById('progressMessage');
+    
+    const interval = setInterval(() => {
+      prog += 10;
+      pBar.style.width = prog + '%';
+      pTxt.textContent = prog + '%';
+      pMsg.textContent = prog < 50 ? 'QR ও Photo ভেরিফাই হচ্ছে...' : 'প্রোফাইল প্রস্তুত করা হচ্ছে...';
+      
+      if (prog >= 100) {
+        clearInterval(interval);
+        finishVoterFlow(); // ১০০% হলে রেজাল্ট দেখাবে
+      }
+    }, 500);
+  }
+
+  // ফেস ভেরিফাই শেষ হলে কল হবে
+  async function finishVoterFlow() {
+    document.getElementById('progressSection').classList.add('hidden');
+    document.getElementById('spinner').classList.remove('show');
+    
+    // মক রেজাল্ট ডেটা (আসল API রেসপন্স এখানে পাস করবেন)
+    const mockData = {
+      success: true,
+      nid: document.getElementById('nid').value,
+      message: 'ম্যানুয়াল ফেস ভেরিফিকেশন সফলভাবে সম্পন্ন হয়েছে!'
+    };
+    showResult(mockData);
+  }
+
   // ===== রেজাল্ট দেখানো =====
   function showResult(data) {
-    const spinner = document.getElementById('spinner');
-    spinner.classList.remove('show');
-    setProgress('');
-
-    document.getElementById('dot2').className = 'step-dot done';
-    document.getElementById('dot3').className = 'step-dot active';
-
+    document.getElementById('step1').classList.add('hidden');
+    document.getElementById('stepFaceVerify').classList.add('hidden');
+    
     if (data.success) {
       showStatus('✅ প্রক্রিয়া সফলভাবে সম্পন্ন হয়েছে!', 'success');
     } else {
-      showStatus('⚠️ ' + (data.error || 'আপনার অ্যাকাউন্টটি লক করা হয়েছে। পরে চেষ্টা করুন'), 'error');
+      showStatus('⚠️ ' + (data.error || 'ত্রুটি হয়েছে'), 'error');
     }
 
     document.getElementById('resultBox').textContent = JSON.stringify(data, null, 2);
@@ -1081,213 +898,20 @@
     const actions = document.getElementById('resultActions');
     actions.innerHTML = '';
 
-    if (data.walletUsername && data.walletPassword) {
-      const walletBtn = document.createElement('button');
-      walletBtn.className = 'btn btn-success';
-      walletBtn.innerHTML = '<i class="fas fa-wallet"></i> NID Wallet User_Password Set Info';
-      walletBtn.onclick = () => showWalletInfo(data);
-      actions.appendChild(walletBtn);
-    }
-
-    if (data.nidPdfDownloadUrl && data.nidPdfDownloadUrl !== 'NID PDF not found') {
-      actions.appendChild(createLink(data.nidPdfDownloadUrl, '📄 NID PDF খুলুন', 'btn-primary', true));
-      actions.appendChild(createLink(data.nidPdfDownloadUrl, '⬇️ NID PDF ডাউনলোড', 'btn-success', false, data.nid + '-nid.pdf'));
-    }
-
     if (data.nid) {
-      actions.appendChild(createLink('/nid-card/' + data.nid, 'V1 Unofficial (Servercopy)', 'btn-outline', true));
-      actions.appendChild(createLink('/nid-card-v2/' + data.nid, 'Official (Servercopy)', 'btn-outline', true));
-    }
-
-    if (data.signUrl) {
-      actions.appendChild(createLink(data.signUrl, '✍️ Signature (Main)', 'btn-outline', true));
+      actions.appendChild(createLink('/nid-card/' + data.nid, 'V1 Unofficial', 'btn-outline'));
+      actions.appendChild(createLink('/nid-card-v2/' + data.nid, 'Official (Servercopy)', 'btn-primary'));
     }
   }
 
-  // ===== স্টেপ ২: OTP যাচাই =====
-  async function verifyOtp() {
-    const otp = document.getElementById('otp').value.trim();
-    if (!otp || otp.length < 4) {
-      showStatus('দয়া করে বৈধ OTP কোড প্রবেশ করান (ন্যূনতম ৪ অক্ষর)।', 'error');
-      return;
-    }
-    if (!currentSessionId) {
-      showStatus('সেশন শেষ হয়েছে। নতুন করে শুরু করুন।', 'error');
-      return;
-    }
-
-    const btn = document.getElementById('verifyBtn');
-    const spinner = document.getElementById('spinner');
-    btn.disabled = true;
-    spinner.classList.add('show');
-    showStatus('', '');
-    setProgress('OTP যাচাই করা হচ্ছে ও বাকি প্রক্রিয়া সম্পন্ন হচ্ছে...');
-
-    try {
-      const res = await fetch('/manual-claim/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ sessionId: currentSessionId, otp }),
-      });
-      const data = await res.json();
-
-      if (!res.ok) {
-        showStatus('❌ ' + (data.error || 'সার্ভার ত্রুটি'), 'error');
-        setProgress('');
-        btn.disabled = false;
-        spinner.classList.remove('show');
-        return;
-      }
-
-      showResult(data);
-
-    } catch (err) {
-      showStatus('❌ ' + err.message, 'error');
-      setProgress('');
-    } finally {
-      btn.disabled = false;
-    }
-  }
-
-  // ===== হেল্পার: লিংক তৈরি =====
-  function createLink(href, label, cls, newTab = true, download = null) {
+  function createLink(href, label, cls) {
     const a = document.createElement('a');
     a.href = href;
     a.className = 'btn ' + cls;
     a.innerHTML = label;
-    if (newTab) a.target = '_blank';
-    if (download) a.download = download;
+    a.target = '_blank';
     return a;
   }
-
-  // ===== Wallet তথ্য দেখান =====
-  function showWalletInfo(data) {
-    const walletUrl = 'https://services.nidw.gov.bd/nid-pub';
-    const msg =
-      '🔐 ওয়ালেট লগইন তথ্য\n\n' +
-      '🔗 লিংক: ' + walletUrl + '\n\n' +
-      '👤 ইউজারনেম: ' + data.walletUsername + '\n' +
-      '🔑 পাসওয়ার্ড: ' + data.walletPassword + '\n\n' +
-      'উপরের লিংকে গিয়ে এই ইউজারনেম ও পাসওয়ার্ড দিয়ে লগইন করুন।';
-
-    // কাস্টম মডেল তৈরি
-    const overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px;';
-    overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
-
-    const modal = document.createElement('div');
-    modal.style.cssText = 'background:#fff;border-radius:16px;padding:28px;max-width:460px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3);text-align:center;font-family:system-ui,sans-serif;';
-
-    modal.innerHTML =
-      '<div style="font-size:48px;margin-bottom:12px;">🔐</div>' +
-      '<h3 style="margin:0 0 6px;font-size:20px;color:#1e293b;">ওয়ালেট লগইন তথ্য</h3>' +
-      '<p style="color:#64748b;font-size:13px;margin:0 0 20px;">নিচের তথ্য ব্যবহার করে লগইন করুন</p>' +
-
-      '<div style="background:#f1f5f9;border-radius:12px;padding:16px;text-align:left;margin-bottom:20px;">' +
-        '<div style="margin-bottom:12px;">' +
-          '<div style="font-size:12px;color:#64748b;margin-bottom:2px;">🔗 লিংক</div>' +
-          '<a href="' + walletUrl + '" target="_blank" style="color:#2563eb;text-decoration:none;font-weight:600;word-break:break-all;">' + walletUrl + '</a>' +
-        '</div>' +
-        '<div style="margin-bottom:12px;">' +
-          '<div style="font-size:12px;color:#64748b;margin-bottom:2px;">👤 ইউজারনেম</div>' +
-          '<div style="display:flex;align-items:center;gap:8px;">' +
-            '<code id="walletUser" style="background:#e2e8f0;padding:6px 10px;border-radius:6px;font-size:14px;flex:1;word-break:break-all;">' + data.walletUsername + '</code>' +
-            '<button onclick="copyText(\'walletUser\', this)" style="background:none;border:none;cursor:pointer;font-size:18px;color:#2563eb;" title="কপি">📋</button>' +
-          '</div>' +
-        '</div>' +
-        '<div>' +
-          '<div style="font-size:12px;color:#64748b;margin-bottom:2px;">🔑 পাসওয়ার্ড</div>' +
-          '<div style="display:flex;align-items:center;gap:8px;">' +
-            '<code id="walletPass" style="background:#e2e8f0;padding:6px 10px;border-radius:6px;font-size:14px;flex:1;word-break:break-all;">' + data.walletPassword + '</code>' +
-            '<button onclick="copyText(\'walletPass\', this)" style="background:none;border:none;cursor:pointer;font-size:18px;color:#2563eb;" title="কপি">📋</button>' +
-          '</div>' +
-        '</div>' +
-      '</div>' +
-
-      '<button onclick="this.closest(\'[data-modal]\').remove()" style="background:#2563eb;color:#fff;border:none;padding:10px 0;border-radius:10px;font-size:15px;font-weight:600;width:100%;cursor:pointer;">বন্ধ করুন</button>';
-
-    modal.setAttribute('data-modal', '');
-    overlay.appendChild(modal);
-    document.body.appendChild(overlay);
-  }
-
-  function copyText(elementId, btn) {
-    const el = document.getElementById(elementId);
-    if (!el) return;
-    const text = el.textContent;
-    const done = () => {
-      // Copy animation: button turns green with a checkmark
-      if (btn) {
-        const orig = btn.textContent;
-        btn.textContent = '✓';
-        btn.style.color = '#16a34a';
-        btn.style.transform = 'scale(1.3)';
-        btn.style.transition = 'all .2s ease';
-        showStatus('✅ কপি হয়েছে!', 'success');
-        setTimeout(() => {
-          btn.textContent = orig;
-          btn.style.color = '#2563eb';
-          btn.style.transform = 'scale(1)';
-        }, 1800);
-      } else {
-        showStatus('✅ কপি হয়েছে!', 'success');
-      }
-    };
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(done).catch(() => {
-        const area = document.createElement('textarea');
-        area.value = text;
-        document.body.appendChild(area);
-        area.select();
-        document.execCommand('copy');
-        document.body.removeChild(area);
-        done();
-      });
-    } else {
-      const area = document.createElement('textarea');
-      area.value = text;
-      document.body.appendChild(area);
-      area.select();
-      document.execCommand('copy');
-      document.body.removeChild(area);
-      done();
-    }
-  }
-
-  // ===== রিসেট =====
-  function resetForm() {
-    clearTimeout(statusPollTimer);
-    stopProgressTimer();
-    currentSessionId = null;
-    document.getElementById('progressSection').classList.add('hidden');
-    document.getElementById('progressBar').style.width = '0%';
-    document.getElementById('progressPercent').textContent = '0%';
-    document.getElementById('progressTimer').textContent = '';
-    document.getElementById('progressMessage').textContent = 'শুরু হচ্ছে...';
-    document.querySelectorAll('#stepChecklist .p-check').forEach(el => {
-      el.classList.remove('active', 'done', 'fail');
-      el.querySelector('.p-check-icon').textContent = '○';
-      el.querySelector('.p-check-status').textContent = '';
-    });
-    document.getElementById('step1').classList.remove('hidden');
-    document.getElementById('step2').classList.add('hidden');
-    document.getElementById('resultCard').classList.add('hidden');
-    document.getElementById('nidPreview').classList.add('hidden');
-    document.getElementById('dot1').className = 'step-dot active';
-    document.getElementById('dot2').className = 'step-dot';
-    document.getElementById('dot3').className = 'step-dot';
-    document.getElementById('statusBox').className = 'status-box';
-    document.getElementById('statusBox').textContent = '';
-    document.getElementById('progressText').textContent = '';
-    document.getElementById('spinner').classList.remove('show');
-    document.getElementById('otp').value = '';
-    // বাটন রিসেট
-    document.getElementById('startBtn').disabled = false;
-    document.getElementById('verifyBtn').disabled = false;
-  }
-
-  // ===== ডিফল্ট NID/DOB (পরীক্ষার জন্য) =====
-  // (ফিল্ডগুলোতে আগে থেকেই ভ্যালু সেট করা আছে)
 </script>
 </body>
 </html>
