@@ -8,7 +8,6 @@ const jsQR = require('jsqr');
 const { extractPdfImages } = require('./extract-pdf-images');
 const BASE_URL = 'https://services.nidw.gov.bd';
 const OCR_API_KEY = process.env.OCR_API_KEY || '';
-const OCR_API_KEY = process.env.OCR_API_KEY || '';
 const MAX_CAPTCHA_RETRIES = 3;
 const MAX_VALIDATE_RETRIES = 50;
 const CACHE_FILE = path.join(__dirname, 'address-cache.json');
