@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Key কিনুন</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root { --primary: #2563eb; --success: #16a34a; --danger: #dc2626; --gray-50: #f8fafc; --gray-100: #f1f5f9; --gray-200: #e2e8f0; --gray-400: #94a3b8; --gray-500: #64748b; --gray-600: #475569; --gray-700: #334155; --gray-800: #1e293b; --gray-900: #0f172a; --radius: 16px; --shadow: 0 8px 30px rgba(0,0,0,0.08); }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: linear-gradient(145deg, #eef2f7, #f8fafc); color: var(--gray-800); min-height: 100vh; padding: 24px; }
+    .container { width: 100%; max-width: 600px; margin: 0 auto; }
+    .card { background: #fff; border-radius: var(--radius); padding: 32px 28px; box-shadow: var(--shadow); margin-bottom: 20px; }
+    .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+    .card-header i { font-size: 28px; color: var(--primary); background: #eff6ff; padding: 10px; border-radius: 12px; }
+    .card h2 { font-size: 24px; font-weight: 700; color: var(--gray-900); }
+    .subtitle { color: var(--gray-500); font-size: 14px; margin-bottom: 24px; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--gray-600); margin-bottom: 5px; }
+    .form-group label i { margin-right: 6px; color: var(--primary); }
+    .form-group input { width: 100%; padding: 11px 15px; border: 1.5px solid var(--gray-200); border-radius: 10px; font-size: 15px; outline: none; transition: 0.25s; background: var(--gray-50); font-family: inherit; color: var(--gray-800); }
+    .form-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(37,99,235,0.12); background: #fff; }
+    .btn { width: 100%; padding: 12px 20px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; border: none; transition: 0.25s; display: inline-flex; align-items: center; justify-content: center; gap: 10px; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: #1d4ed8; transform: translateY(-1px); }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-success:hover:not(:disabled) { background: #15803d; transform: translateY(-1px); }
+    .packages { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+    .package { display: flex; align-items: center; gap: 16px; padding: 16px 18px; border: 2px solid var(--gray-200); border-radius: 12px; cursor: pointer; transition: 0.25s; background: var(--gray-50); }
+    .package:hover { border-color: var(--primary); background: #eff6ff; }
+    .package.selected { border-color: var(--primary); background: #eff6ff; box-shadow: 0 0 0 3px rgba(37,99,235,0.15); }
+    .package input[type="radio"] { width: 18px; height: 18px; accent-color: var(--primary); flex-shrink: 0; }
+    .package-info { flex: 1; }
+    .package-name { font-weight: 700; font-size: 16px; }
+    .package-desc { font-size: 12px; color: var(--gray-500); }
+    .package-price { font-size: 20px; font-weight: 800; color: var(--success); }
+    .spinner { display: none; text-align: center; margin: 18px 0; }
+    .spinner.show { display: block; }
+    .spinner div { width: 32px; height: 32px; border: 4px solid var(--gray-200); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .hidden { display: none !important; }
+    .status-box { padding: 14px 18px; border-radius: 10px; font-size: 14px; margin-top: 16px; display: none; }
+    .status-box.info { display: block; background: #eff6ff; border-left: 4px solid var(--primary); color: #1e40af; }
+    .status-box.error { display: block; background: #fef2f2; border-left: 4px solid var(--danger); color: #991b1b; }
+    .status-box.success { display: block; background: #f0fdf4; border-left: 4px solid var(--success); color: #166534; }
+    .text-center { text-align: center; }
+    .mt-8 { margin-top: 8px; }
+    .mb-8 { margin-bottom: 8px; }
+    .nav-link { display: inline-flex; align-items: center; gap: 6px; background: var(--gray-100); color: var(--gray-700); padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 600; margin-bottom: 16px; }
+    .nav-link:hover { background: var(--gray-200); }
+    @media (max-width: 480px) { .card { padding: 24px 18px; } .card h2 { font-size: 20px; } }
+    .payment-loading { text-align: center; padding: 40px 0; }
+    .payment-loading i { font-size: 48px; color: var(--primary); margin-bottom: 16px; }
+    .payment-loading p { color: var(--gray-500); font-size: 14px; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <a href="/manual-claim.html" class="nav-link"><i class="fas fa-arrow-left"></i> ফিরে যান</a>
+
+  <div class="card">
+    <div class="card-header">
+      <i class="fas fa-shopping-cart"></i>
+      <h2>API Key কিনুন</h2>
+    </div>
+    <p class="subtitle">প্যাকেজ সিলেক্ট করুন → bKash পেমেন্ট দিন → API Key পান</p>
+
+    <div id="stepSelect">
+      <div class="packages" id="packageList"></div>
+
+      <div class="form-group">
+        <label><i class="fas fa-phone"></i> আপনার Bkash Personal নম্বর দিন এখানে</label>
+        <input id="phone" type="text" inputmode="numeric" placeholder="যেমন 01xxxxxxxxx">
+      </div>
+
+      <button class="btn btn-success" id="payBtn" onclick="startPayment()" disabled>
+        <i class="fas fa-mobile-alt"></i> bKash পেমেন্ট করুন
+      </button>
+    </div>
+
+    <div id="stepLoading" class="hidden">
+      <div class="payment-loading">
+        <i class="fas fa-spinner fa-pulse"></i>
+        <h3>bKash পেমেন্ট তৈরি হচ্ছে...</h3>
+        <p>অনুগ্রহ করে অপেক্ষা করুন</p>
+      </div>
+    </div>
+
+    <div class="spinner" id="spinner"><div></div></div>
+    <div class="status-box" id="statusBox"></div>
+  </div>
+</div>
+
+<script>
+  let PACKAGES = [];
+  let selectedPackage = null;
+
+  // Packages now come from the server (.env API_RATE) so changing .env updates here automatically
+  fetch('/api/packages').then(r => r.json()).then(data => {
+    if (data && data.packages) {
+      PACKAGES = data.packages.map(p => ({ ...p, desc: p.tokens + ' টি NID চেক — ' + p.price + ' টাকা' }));
+      renderPackages();
+    }
+  }).catch(() => {});
+
+  // Check URL for error/success params
+  const urlParams = new URLSearchParams(window.location.search);
+  const errorParam = urlParams.get('error');
+  if (errorParam === 'cancel') showStatus('🚫 আপনি পেমেন্ট বাতিল করেছেন। আবার চেষ্টা করুন।', 'error');
+  else if (errorParam === 'failure') showStatus('❌ পেমেন্ট ব্যর্থ হয়েছে। আবার চেষ্টা করুন।', 'error');
+  else if (errorParam === 'execution_failed') showStatus('❌ পেমেন্ট সম্পন্ন হয়নি। আবার চেষ্টা করুন।', 'error');
+  else if (errorParam === 'invalid') showStatus('❌ ভিন্ন তথ্য। আবার চেষ্টা করুন।', 'error');
+
+  function renderPackages() {
+    const list = document.getElementById('packageList');
+    list.innerHTML = PACKAGES.map(p => `
+      <label class="package" data-id="${p.id}" onclick="selectPackage(${p.id})">
+        <input type="radio" name="pkg" value="${p.id}" ${selectedPackage?.id === p.id ? 'checked' : ''}>
+        <div class="package-info">
+          <div class="package-name">${p.name}</div>
+          <div class="package-desc">${p.desc} | ৳${p.price}</div>
+        </div>
+        <div class="package-price">৳${p.price}</div>
+      </label>
+    `).join('');
+    if (selectedPackage) document.querySelector(`.package[data-id="${selectedPackage.id}"]`)?.classList.add('selected');
+  }
+
+  function selectPackage(id) {
+    selectedPackage = PACKAGES.find(p => p.id === id);
+    document.querySelectorAll('.package').forEach(el => el.classList.remove('selected'));
+    document.querySelector(`.package[data-id="${id}"]`)?.classList.add('selected');
+    document.querySelector(`.package input[value="${id}"]`).checked = true;
+    document.getElementById('payBtn').disabled = false;
+    showStatus('', '');
+  }
+
+  async function startPayment() {
+    const phone = document.getElementById('phone').value.trim();
+    if (!selectedPackage) return showStatus('দয়া করে একটি প্যাকেজ সিলেক্ট করুন।', 'error');
+    if (!phone) return showStatus('দয়া করে আপনার মোবাইল নম্বর দিন।', 'error');
+
+    const btn = document.getElementById('payBtn');
+    btn.disabled = true;
+    document.getElementById('stepSelect').classList.add('hidden');
+    document.getElementById('stepLoading').classList.remove('hidden');
+    showStatus('', '');
+
+    try {
+      const res = await fetch('/api/bkash/create-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ packageId: selectedPackage.id, phone }),
+      });
+      const data = await res.json();
+
+      if (!data.success || !data.bkashURL) {
+        document.getElementById('stepSelect').classList.remove('hidden');
+        document.getElementById('stepLoading').classList.add('hidden');
+        btn.disabled = false;
+        const details = data.details ? JSON.stringify(data.details) : '';
+        return showStatus('❌ ' + (data.error || 'পেমেন্ট তৈরি ব্যর্থ') + (details ? ' — ' + details : ''), 'error');
+      }
+
+      // Redirect to bKash payment page
+      window.location.href = data.bkashURL;
+
+    } catch (err) {
+      document.getElementById('stepSelect').classList.remove('hidden');
+      document.getElementById('stepLoading').classList.add('hidden');
+      btn.disabled = false;
+      showStatus('❌ ' + err.message, 'error');
+    }
+  }
+
+  function showStatus(msg, type) {
+    const box = document.getElementById('statusBox');
+    box.textContent = msg; box.className = 'status-box ' + (type || '');
+  }
+
+  renderPackages();
+</script>
+</body>
+</html>

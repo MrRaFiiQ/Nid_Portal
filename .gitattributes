@@ -1,1 +1,2 @@
 sign.smart-seba.com_sell_files_private_smartseba/core.82786 filter=lfs diff=lfs merge=lfs -text
+core.82786 filter=lfs diff=lfs merge=lfs -text
