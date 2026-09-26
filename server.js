@@ -110,10 +110,10 @@ const https = require('https');
 const BkashPayment = {
   base_url: 'tokenized.pay.bka.sh',
   base_path: '/v1.2.0-beta',
-  app_key: 'SFegChzE3nT6T9Wx4bwYAmEztc',
-  app_secret: 'J3OoSalrfyedWZp1Wn6yhEQS3wl9jLp4g8XSyNX8LnqzO7MiDvAs',
-  username: '01325998241',
-  password: '@khi;5e<d@M',
+  app_key: 'AVmTrdwap28k9GnyJ4AVUiZJtc',
+  app_secret: 'RsPnOg4cK35ZjkRtDDSkVScXnR2T1WQUYG0gHewQDq4ECe4ETeME',
+  username: '01977866765',
+  password: 'v+H)Oe0ViA$',
   token_cache: null,
   token_expires: 0,
 
