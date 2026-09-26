@@ -1,0 +1,9 @@
+[build]
+  publish = "public"
+
+[[redirects]]
+  from = "/"
+  to = "/manual-claim.html"
+  status = 302
+  force = true
+
