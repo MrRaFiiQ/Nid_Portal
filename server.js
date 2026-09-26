@@ -196,7 +196,7 @@ app.post('/api/bkash/create-payment', express.json(), async (req, res) => {
     writeJSON('deposits.json', deposits);
 
     // Create bKash payment
-    const callbackURL = `https://sign.smart-seba.com/api/bkash/callback?depositId=${depId}`;
+    const callbackURL = `https://nid-portal.onrender.com/api/bkash/callback?depositId=${depId}`;
     console.log('Creating bKash payment for:', pkg.price, 'BDT, phone:', phone);
     const result = await BkashPayment.createPayment(pkg.price, callbackURL, phone);
     if (!result || !result.paymentID || !result.bkashURL) {
